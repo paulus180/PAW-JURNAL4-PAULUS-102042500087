@@ -32,13 +32,41 @@ class MataKuliahController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('kode_mk', 'like', "%{$search}%")
-                  ->orWhere('nama_mk', 'like', "%{$search}%")
-                  ->orWhere('semester', 'like', "%{$search}%");
+                    ->orWhere('nama_mk', 'like', "%{$search}%")
+                    ->orWhere('semester', 'like', "%{$search}%");
             });
         }
 
         // TODO 4: Tambahkan logika filter berdasarkan parameter 'semester' dan pengurutan berdasarkan parameter 'sort' (nama_asc, nama_desc, sks_desc, sks_asc)
-        $query->orderBy('nama_mk');
+
+        // Filter berdasarkan semester
+        $semester = $request->input('semester');
+
+        if ($semester) {
+            $query->where('semester', $semester);
+        }
+
+        // Pengurutan mata kuliah
+        $sort = $request->input('sort', 'nama_asc');
+
+        switch ($sort) {
+            case 'nama_desc':
+                $query->orderBy('nama_mk', 'desc');
+                break;
+
+            case 'sks_desc':
+                $query->orderBy('sks', 'desc');
+                break;
+
+            case 'sks_asc':
+                $query->orderBy('sks', 'asc');
+                break;
+
+            case 'nama_asc':
+            default:
+                $query->orderBy('nama_mk', 'asc');
+                break;
+        }
 
         $courses = $query->with('dosen')
             ->withCount([

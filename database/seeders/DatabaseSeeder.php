@@ -63,5 +63,102 @@ class DatabaseSeeder extends Seeder
         );
 
         // TODO 8: Tambahkan minimal 2 mata kuliah lagi dengan semester berbeda, 1 mahasiswa tambahan, 2 tugas, dan contoh data submission
+
+        // 6. Tambahkan Mahasiswa Kedua
+        $mahasiswa2 = User::updateOrCreate(
+            ['email' => 'mahasiswa2@celoe.test'],
+            [
+                'name' => 'Siti Rahmawati',
+                'password' => Hash::make('mahasiswa123'),
+                'role' => 'mahasiswa',
+                'nomor_induk' => '1301210002',
+            ]
+        );
+
+        // 7. Tambahkan Mata Kuliah Kedua
+        $course2 = MataKuliah::updateOrCreate(
+            ['kode_mk' => 'IF302'],
+            [
+                'nama_mk' => 'Basis Data',
+                'deskripsi' => 'Mempelajari konsep basis data, SQL, relasi tabel, dan pengelolaan data.',
+                'sks' => 3,
+                'semester' => 'Genap 2026/2027',
+                'dosen_id' => $dosen->id,
+            ]
+        );
+
+        // 8. Tambahkan Mata Kuliah Ketiga
+        $course3 = MataKuliah::updateOrCreate(
+            ['kode_mk' => 'IF303'],
+            [
+                'nama_mk' => 'Pemrograman Berorientasi Objek',
+                'deskripsi' => 'Mempelajari konsep class, object, inheritance, encapsulation, dan polymorphism.',
+                'sks' => 3,
+                'semester' => 'Ganjil 2027/2028',
+                'dosen_id' => $dosen->id,
+            ]
+        );
+
+        // 9. Daftarkan Mahasiswa ke Mata Kuliah
+        $course2->students()->syncWithoutDetaching([
+            $mahasiswa2->id => ['status' => 'approved'],
+        ]);
+
+        $course3->students()->syncWithoutDetaching([
+            $mahasiswa1->id => ['status' => 'approved'],
+            $mahasiswa2->id => ['status' => 'approved'],
+        ]);
+
+        // 10. Tambahkan Tugas Pertama
+        $assignment1 = Assignment::updateOrCreate(
+            [
+                'course_id' => $course1->id,
+                'judul' => 'Tugas Praktikum Laravel',
+            ],
+            [
+                'deskripsi' => 'Buat aplikasi sederhana menggunakan framework Laravel dengan konsep MVC.',
+                'deadline' => now()->addDays(7),
+            ]
+        );
+
+        // 11. Tambahkan Tugas Kedua
+        $assignment2 = Assignment::updateOrCreate(
+            [
+                'course_id' => $course2->id,
+                'judul' => 'Tugas Perancangan Basis Data',
+            ],
+            [
+                'deskripsi' => 'Buat rancangan database sederhana menggunakan ERD dan implementasikan ke dalam tabel.',
+                'deadline' => now()->addDays(10),
+            ]
+        );
+
+        // 12. Tambahkan Contoh Pengumpulan Tugas Pertama
+        Submission::updateOrCreate(
+            [
+                'assignment_id' => $assignment1->id,
+                'user_id' => $mahasiswa1->id,
+            ],
+            [
+                'jawaban' => 'Saya telah membuat aplikasi Laravel menggunakan konsep MVC.',
+                'submitted_at' => now(),
+                'nilai' => 85,
+                'catatan_dosen' => 'Pengerjaan sudah baik dan sesuai dengan instruksi.',
+            ]
+        );
+
+        // 13. Tambahkan Contoh Pengumpulan Tugas Kedua
+        Submission::updateOrCreate(
+            [
+                'assignment_id' => $assignment2->id,
+                'user_id' => $mahasiswa2->id,
+            ],
+            [
+                'jawaban' => 'Saya telah membuat ERD dan mengimplementasikan tabel database.',
+                'submitted_at' => now(),
+                'nilai' => 90,
+                'catatan_dosen' => 'Rancangan database sudah baik dan relasi tabel sesuai.',
+            ]
+        );
     }
 }
